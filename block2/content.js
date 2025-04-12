@@ -57,12 +57,28 @@ let isDragging = false;
 let offsetY = 0;
 let initialClick = null;
 
-// 页面加载时读取保存的位置
+// 页面加载时读取保存的位置和状态
 window.addEventListener('DOMContentLoaded', () => {
   const savedTop = localStorage.getItem('widgetTop');
   if (savedTop) {
     widget.style.top = savedTop;
     widget.style.transform = ''; // 清除居中的 transform
+  }
+
+  // 如果 sessionStorage 中有 isClicked 状态，初始化
+  const savedClickedState = sessionStorage.getItem('isClicked');
+  if (savedClickedState === 'true') {
+    isClicked = true;
+    rectangle.style.width = '30px';
+    rectangle.style.backgroundColor = '#3384D4';
+    halfCircle.style.backgroundColor = '#3384D4';
+    bingoIcon.style.display = 'block';
+  } else {
+    isClicked = false;
+    rectangle.style.width = '0';
+    rectangle.style.backgroundColor = '#66BFFF';
+    halfCircle.style.backgroundColor = '#66BFFF';
+    bingoIcon.style.display = 'none';
   }
 });
 
@@ -131,11 +147,17 @@ widget.addEventListener('click', () => {
     rectangle.style.backgroundColor = '#66BFFF';
     halfCircle.style.backgroundColor = '#66BFFF';
     bingoIcon.style.display = 'none';
+
+    // 将状态保存在 sessionStorage 中
+    sessionStorage.setItem('isClicked', 'false');
   } else {
     isClicked = true;
     rectangle.style.width = '30px';
     rectangle.style.backgroundColor = '#3384D4';
     halfCircle.style.backgroundColor = '#3384D4';
     bingoIcon.style.display = 'block';
+
+    // 将状态保存在 sessionStorage 中
+    sessionStorage.setItem('isClicked', 'true');
   }
 });
