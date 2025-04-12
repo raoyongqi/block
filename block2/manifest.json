@@ -1,0 +1,40 @@
+{
+    "manifest_version": 2,
+    "name": "DownloadBlockedSite",
+    "version": "1.0",
+    "description": "DownloadBlockedSite",
+    "icons": {
+      "48": "spider_web.png"
+    },
+    "permissions": [
+        "tabs",
+        "storage",
+        "<all_urls>",
+        "notifications",
+        "webRequest",
+        "webRequestBlocking",
+        "webNavigation"
+      ],
+      "content_scripts": [
+        {
+          "matches": [
+            "<all_urls>",
+            "file:///*",
+            "*://*/*"
+          ],
+          "js": [
+            "content.js"
+          ],
+          "run_at": "document_end",
+          "all_frames": true
+        }
+      ],
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "raoyongqi@12311.io",
+    
+            "strict_min_version": "54.0a1"
+        }
+    }
+  }
+  

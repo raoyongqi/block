@@ -1,0 +1,26 @@
+{
+    "manifest_version": 2,
+    "name": "记事本插件",
+    "version": "1.0",
+    "description": "一个简单的记事本插件，支持编辑和保存笔记",
+    "permissions": ["storage"],
+    "browser_action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "icons/icon-16.png",
+        "48": "icons/icon-48.png",
+        "128": "icons/icon-128.png"
+      }
+    },
+    "background": {
+      "scripts": ["background.js"]
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "raoyongqi@546.io",
+    
+            "strict_min_version": "54.0a1"
+        }
+    }
+  }
+  

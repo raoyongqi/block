@@ -1,0 +1,22 @@
+#my-floating-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(50, 150, 255, 0.9);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 9999;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  }
+  
+  #my-floating-widget button {
+    background: white;
+    color: #333;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  

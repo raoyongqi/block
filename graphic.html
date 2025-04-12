@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拖动按钮</title>
+  <style>
+    /* 设置按钮容器样式 */
+    #draggable-widget {
+      position: fixed;
+      left: 0; /* 固定在屏幕左侧 */
+      top: 50%; /* 初始位置在垂直中间 */
+      transform: translateY(-50%); /* 垂直居中 */
+      z-index: 9999;
+      cursor: pointer;
+      display: flex; /* 使用 flex 布局来排列长方形和半圆形按钮 */
+      transition: all 0.3s ease; /* 添加过渡效果 */
+    }
+    #widget-body {
+      display: flex; /* 使用flex布局来排列长方形和半圆形 */
+      justify-content: flex-start;
+      align-items: center;
+      width: 37.5px;
+      overflow: hidden;
+      background:  #A1D6FF; /* 渐变效果 */
+      border-radius: 22px; /* 设置圆角来使按钮整体更圆润 */
+      height: 45px; /* 高度为圆形部分的高度 */
+      transition: background-color 0.3s ease;
+    }
+    /* 设置长方形部分样式 */
+    #rectangle {
+      width: 0; /* 初始宽度为 0 */
+      height: 45px; /* 长方形高度 */
+      background-color: #A1D6FF; /* 颜色 */
+      transition: width 0.3s ease, background-color 0.3s ease; /* 添加宽度过渡效果和背景色过渡效果 */
+    }
+
+    /* 设置半圆形按钮样式 */
+    #half-circle {
+      width: 45px; /* 半圆宽度 */
+      height: 45px; /* 半圆高度 */
+      background-color: #A1D6FF; /* 颜色 */
+      border-top-right-radius: 20px; /* 半圆形状，圆弧在右边 */
+      border-bottom-right-radius: 20px; /* 半圆形状，圆弧在右边 */
+      transition: background-color 0.3s ease; /* 半圆部分颜色的过渡 */
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 创建按钮容器 -->
+  <div id="draggable-widget">
+    <div id="rectangle"></div>  <!-- 长方形部分 -->
+    <div id="half-circle"></div> <!-- 半圆部分 -->
+  </div>
+
+  <script>
+    const widget = document.getElementById('draggable-widget');
+    const rectangle = document.getElementById('rectangle');
+    const halfCircle = document.getElementById('half-circle');
+
+    let isDragging = false;
+    let offsetY = 0;
+    let initialClick = null;
+
+    widget.addEventListener('mouseenter', () => {
+      if (!isDragging) {
+        rectangle.style.width = '30px';  
+        
+        rectangle.style.background = '#66BFFF';
+        halfCircle.style.background = '#66BFFF';
+      }
+    });
+
+    // 鼠标离开时恢复初始状态（只显示半圆形按钮）并使颜色变淡
+    widget.addEventListener('mouseleave', () => {
+      if (!isDragging) {
+        rectangle.style.width = '0';
+        rectangle.style.backgroundColor = '#66BFFF';  // 非常浅的蓝色
+        halfCircle.style.backgroundColor = '#66BFFF';  // 非常浅的蓝色
+      }
+    });
+
+    // 鼠标按下事件，开始拖动
+    widget.addEventListener('mousedown', (e) => {
+      initialClick = { x: e.clientX, y: e.clientY };
+      isDragging = true;
+      offsetY = e.clientY - widget.offsetTop;  // 记录点击时鼠标到按钮顶部的距离
+      widget.style.transition = 'none';  // 在拖动时取消过渡效果
+
+      // 确保拖动时按钮始终显示完整（长方形部分展开）
+      rectangle.style.width = '30px';
+    });
+
+    // 鼠标移动事件，改变浮动按钮的位置
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        let newTop = e.clientY - offsetY;  // 计算新的顶部位置
+        // 限制按钮的上下范围，防止超过屏幕上下边界
+        if (newTop < 0) newTop = 0;
+        if (newTop > window.innerHeight - widget.offsetHeight) {
+          newTop = window.innerHeight - widget.offsetHeight;
+        }
+        widget.style.top = `${newTop}px`;  // 更新按钮的顶部位置
+      }
+    });
+
+    // 鼠标松开事件，结束拖动
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        widget.style.transition = 'top 0.3s ease';  // 恢复过渡效果
+      }
+
+      // 鼠标松开后恢复鼠标进入和离开时的行为
+      if (!isDragging) {
+        rectangle.style.width = '0';  // 恢复只显示半圆形按钮
+        rectangle.style.backgroundColor = '#66BFFF';  // 非常浅的蓝色
+        halfCircle.style.backgroundColor = '#66BFFF';  // 非常浅的蓝色
+      }
+    });
+  </script>
+
+</body>
+</html>
