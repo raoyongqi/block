@@ -16,7 +16,7 @@
         "webNavigation"
       ],
       "background": {
-        "page": "background.html"
+        "scripts": ["background.js"]
       },
       "content_scripts": [
         {

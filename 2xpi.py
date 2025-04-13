@@ -16,9 +16,8 @@ def create_xpi(folder_path, output_path):
 
     print(f"XPI 文件已生成：{output_path}")
 
-# 设置文件夹路径和输出 XPI 文件路径
-folder_path = 'block'  # 你的扩展文件夹路径
-output_path = 'block.xpi'  # 输出的 XPI 文件路径
+folder_path = 'extension'
+output_path = 'extension.xpi'  # 输出的 XPI 文件路径
 
 # 调用函数创建 XPI 文件
 create_xpi(folder_path, output_path)
