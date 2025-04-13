@@ -1,52 +1,181 @@
-// 创建浮动按钮
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message === "COOKIES") {
+        sendResponse(document.cookie)
+    }
+})
+
+// 创建 draggable widget 元素
 const widget = document.createElement('div');
-widget.id = 'my-floating-widget';
-widget.innerHTML = `<button id="my-btn">🔍 点我</button>`;
-
-// 设置浮动按钮的位置样式，使其在页面左侧垂直居中
-widget.style.position = 'fixed';
-widget.style.left = '10px';  // 设置距离左侧的距离
-widget.style.top = '50%';  // 设置距离顶部的距离，50% 使其垂直居中
-widget.style.transform = 'translateY(-50%)';  // 将元素垂直居中
-widget.style.zIndex = '9999';  // 确保按钮在页面上层
-widget.style.pointerEvents = 'auto';  // 确保按钮可以点击
-
-// 设置按钮的初始样式（淡出效果）
-widget.style.transition = 'opacity 0.3s ease';  // 设置透明度过渡效果
-widget.style.opacity = '1';  // 初始时按钮完全可见
-
-// 将按钮添加到页面
+widget.id = 'draggable-widget';
 document.body.appendChild(widget);
 
-// 鼠标进入时，按钮变得完全可见
-widget.addEventListener('mouseover', () => {
-  widget.style.opacity = '1';  // 鼠标悬停时完全显示
+const rectangle = document.createElement('div');
+rectangle.id = 'rectangle';
+widget.appendChild(rectangle);
+
+const halfCircle = document.createElement('div');
+halfCircle.id = 'half-circle';
+widget.appendChild(halfCircle);
+
+const bingoIcon = document.createElement('div');
+bingoIcon.id = 'bingo-icon';
+bingoIcon.textContent = '🔍';
+widget.appendChild(bingoIcon);
+
+// 添加 CSS 样式
+const style = document.createElement('style');
+style.textContent = `
+  #draggable-widget {
+    position: fixed;
+    left: 0;
+    top: 80%;
+    transform: translateY(-50%);
+    z-index: 9999;
+    cursor: pointer;
+    display: flex;
+    transition: all 0.3s ease;
+  }
+  #rectangle {
+    width: 0;
+    height: 45px;
+    background-color: #A1D6FF;
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+  #half-circle {
+    width: 45px;
+    height: 45px;
+    background-color: #A1D6FF;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    transition: background-color 0.3s ease;
+  }
+  #bingo-icon {
+    display: none;
+    font-size: 24px;
+    color: #3384D4;
+    transition: opacity 0.3s ease;
+  }
+`;
+document.head.appendChild(style);
+
+let isClicked = false;
+let isDragging = false;
+let offsetY = 0;
+let initialClick = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const savedTop = localStorage.getItem('widgetTop');
+  if (savedTop) {
+    widget.style.top = savedTop;
+    widget.style.transform = '';
+  }
+
+  const savedClickedState = sessionStorage.getItem('isClicked');
+  if (savedClickedState === 'true') {
+    isClicked = true;
+    rectangle.style.width = '30px';
+    rectangle.style.backgroundColor = '#3384D4';
+    halfCircle.style.backgroundColor = '#3384D4';
+    bingoIcon.style.display = 'block';
+  } else {
+    isClicked = false;
+    rectangle.style.width = '0';
+    rectangle.style.backgroundColor = '#A1D6FF';
+    halfCircle.style.backgroundColor = '#A1D6FF';
+    bingoIcon.style.display = 'none';
+  }
 });
 
-// 鼠标离开时，按钮变得半透明并淡出
-widget.addEventListener('mouseout', () => {
-  widget.style.opacity = '0.5';  // 鼠标离开时淡出
+widget.addEventListener('mouseenter', () => {
+  if (!isDragging) {
+    rectangle.style.width = '30px';
+    rectangle.style.background = '#66BFFF';
+    halfCircle.style.background = '#66BFFF';
+  }
 });
 
-// 添加按钮的点击事件
-document.getElementById('my-btn').addEventListener('click', () => {
-  // 使用 browser.storage.local.get 获取存储的数据
-  browser.storage.local.get('blockedUrls').then(result => {
-      const blockedUrls = result.blockedUrls || [];  // 获取存储的 blockedUrls 数据，默认是空数组
-
-      // 将 blockedUrls 转换成 JavaScript 数组形式
-      const formattedUrls = blockedUrls.map(url => `"${url}"`).join(',\n');
-      const jsContent = `const blockedUrls = [\n${formattedUrls}\n];\nexport default blockedUrls;`;
-
-      // 创建 Blob 来生成下载链接
-      const blob = new Blob([jsContent], { type: 'application/javascript' });
-
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'blocked_urls.js';  // 下载为 .js 文件
-      link.click();
-  }).catch(error => {
-      console.error('Error retrieving blockedUrls from storage:', error);
-  });
+widget.addEventListener('mouseleave', () => {
+  if (!isDragging) {
+    rectangle.style.width = '0';
+    rectangle.style.backgroundColor = '#A1D6FF';
+    halfCircle.style.backgroundColor = '#A1D6FF';
+  }
 });
 
+widget.addEventListener('mousedown', (e) => {
+  initialClick = { x: e.clientX, y: e.clientY };
+  isDragging = true;
+  offsetY = e.clientY - widget.offsetTop;
+  widget.style.transition = 'none';
+  rectangle.style.width = '30px';
+});
+
+// 鼠标移动时拖动小部件
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    let newTop = e.clientY - offsetY;
+    if (newTop < 0) newTop = 0;
+    if (newTop > window.innerHeight - widget.offsetHeight) {
+      newTop = window.innerHeight - widget.offsetHeight;
+    }
+    widget.style.top = `${newTop}px`;
+    widget.style.transform = ''; // 移动后清除原来的 translateY(-50%)
+  }
+});
+
+// 鼠标松开停止拖动
+document.addEventListener('mouseup', () => {
+  if (isDragging) {
+    isDragging = false;
+    widget.style.transition = 'top 0.3s ease';
+
+    // 保存当前位置
+    localStorage.setItem('widgetTop', widget.style.top);
+  }
+
+  if (!isDragging) {
+    rectangle.style.width = '0';
+    rectangle.style.backgroundColor = '#A1D6FF';
+    halfCircle.style.backgroundColor = '#A1D6FF';
+  }
+});
+
+// 点击事件切换状态
+widget.addEventListener('click', () => {
+  if (isClicked) {
+    isClicked = false;
+    rectangle.style.width = '0';
+    rectangle.style.backgroundColor = '#A1D6FF';
+    halfCircle.style.backgroundColor = '#A1D6FF';
+    bingoIcon.style.display = 'none';
+
+    sessionStorage.setItem('isClicked', 'false');
+    
+  } else {
+    isClicked = true;
+    rectangle.style.width = '30px';
+    rectangle.style.backgroundColor = '#3384D4';
+    halfCircle.style.backgroundColor = '#3384D4';
+    bingoIcon.style.display = 'block';
+    browser.storage.local.get().then((result) => {
+        const jsonData = JSON.stringify(result, null, 2);
+    
+        const blob = new Blob([jsonData], { type: 'application/json' });
+    
+        const url = URL.createObjectURL(blob);
+    
+        const now = new Date();
+        const formattedDate = now.toISOString().replace(/[T:.]/g, '-');
+    
+        const a = document.createElement('a');
+        a.href = url;
+        
+        a.download = `storageData-${formattedDate}.json`;  
+    
+        a.click();
+    
+        URL.revokeObjectURL(url);
+    });
+    sessionStorage.setItem('isClicked', 'true');
+  }
+});

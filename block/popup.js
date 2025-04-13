@@ -1,40 +1,75 @@
-// 获取元素
-const urlInput = document.getElementById('urlInput');
-const saveButton = document.getElementById('saveButton');
-const urlList = document.getElementById('urlList');
+let blockedDomainsContainer
+let blockedDomainsButton
+let cookiesContainer
+let cookiesButton
+let lsContainer
+let lsButton
 
-// 加载已保存的访问过的 URL
-function loadUrls() {
-  // 使用 browser.storage.local.get 获取保存的 visitedUrls
-  browser.storage.local.get('visitedUrls').then(result => {
-    const visitedUrls = result.visitedUrls || [];  // 获取存储的 "visitedUrls"，如果没有数据则使用空数组
-    urlList.innerHTML = visitedUrls.map(url => `<li>${url}</li>`).join('');  // 显示所有访问过的 URL
-  }).catch(error => {
-    console.error('Error loading visitedUrls:', error);
-  });
+let sets = {}
+let cookies = []
+
+browser.runtime.onMessage.addListener((message) => {
+    sets = message.sets
+})
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    const coll = document.getElementsByClassName("collapsible");
+    blockedDomainsContainer = document.getElementById('blocked-domains')
+    blockedDomainsButton = document.getElementById('blocked-domains-btn')
+    cookiesContainer = document.getElementById('cookies')
+    cookiesButton = document.getElementById('cookies-btn')
+    lsContainer = document.getElementById('ls')
+    lsButton = document.getElementById('ls-btn')
+
+    for (let i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+          this.classList.toggle("active");
+          var content = this.nextElementSibling;
+          if (content.style.display === "block") {
+            content.style.display = "none";
+          } else {
+            content.style.display = "block";
+          }
+        })
+    }
+})
+
+function handleActivated(tabId, changeInfo, tabInfo) {
+    if (tabInfo.url && sets[tabInfo.url]) {
+        blockedDomainsContainer.innerHTML = ''
+        sets[tabInfo.url].forEach((url) => {
+            blockedDomainsContainer.innerHTML += `<span>${url}</span><br>`
+        })
+        blockedDomainsButton.innerText = `External URLs (${sets[tabInfo.url].size})`
+    }
 }
 
-// 点击保存按钮时，保存 URL
-saveButton.addEventListener('click', () => {
-  const url = urlInput.value.trim();
-  if (url) {
-    // 获取当前存储的 visitedUrls
-    browser.storage.local.get('visitedUrls').then(result => {
-      const visitedUrls = result.visitedUrls || [];  // 获取存储的 "visitedUrls"，如果没有数据则使用空数组
-      visitedUrls.push(url);  // 添加新的 URL
+browser.tabs.onUpdated.addListener(handleActivated)
 
-      // 使用 browser.storage.local.set 保存更新后的 visitedUrls
-      browser.storage.local.set({ visitedUrls }).then(() => {
-        urlInput.value = '';  // 清空输入框
-        loadUrls();  // 重新加载已保存的访问 URL
-      }).catch(error => {
-        console.error('Error saving visitedUrls:', error);
-      });
-    }).catch(error => {
-      console.error('Error retrieving visitedUrls:', error);
-    });
-  }
-});
+browser.tabs.query({currentWindow: true, active: true}).then(tabs => {
+    if (tabs[0]) {
+        browser.runtime.sendMessage('LIST').then(savedSets => {
+            sets = savedSets
+            blockedDomainsContainer.innerHTML = ''
+            
+            sets[tabs[0].url].forEach((url) => {
+                blockedDomainsContainer.innerHTML += `<span>${url}</span><br>`
+            })
+            blockedDomainsButton.innerText = `External URLs (${sets[tabs[0].url].size})`
+        })
 
-// 初始化加载已保存的访问过的 URL
-loadUrls();
+        browser.tabs.sendMessage(tabs[0].id, "COOKIES").then(c => {
+            cookies = c.split(';').map(item => item.split("="))
+            cookiesContainer.innerHTML = ''
+            cookies.forEach(cookie => {
+                cookiesContainer.innerHTML += `<span>${cookie[0]} : ${cookie[1]}</span><br>`
+            })
+            cookiesButton.innerText = `Cookies (${cookies.length})`
+        })
+
+        
+
+    }
+})
+
+

@@ -158,28 +158,22 @@ widget.addEventListener('click', () => {
     halfCircle.style.backgroundColor = '#3384D4';
     bingoIcon.style.display = 'block';
     browser.storage.local.get().then((result) => {
-        // 将结果对象转换为 JSON 字符串
-        const jsonData = JSON.stringify(result, null, 2);  // `null, 2` 是为了美化 JSON 输出格式
+        const jsonData = JSON.stringify(result, null, 2);
     
-        // 创建一个 Blob 对象，用于下载 JSON 数据
         const blob = new Blob([jsonData], { type: 'application/json' });
     
-        // 创建一个临时的下载链接
         const url = URL.createObjectURL(blob);
     
-        // 获取当前时间，用于生成文件名
         const now = new Date();
-        const formattedDate = now.toISOString().replace(/[T:.]/g, '-');  // 格式化为 'YYYY-MM-DD-HH-MM-SS'
+        const formattedDate = now.toISOString().replace(/[T:.]/g, '-');
     
-        // 创建一个隐藏的 <a> 元素
         const a = document.createElement('a');
         a.href = url;
-        a.download = `storageData-${formattedDate}.json`;  // 设置下载文件名，包含时间戳
+        
+        a.download = `storageData-${formattedDate}.json`;  
     
-        // 触发点击事件，开始下载
         a.click();
     
-        // 释放创建的 URL 对象
         URL.revokeObjectURL(url);
     });
     sessionStorage.setItem('isClicked', 'true');
