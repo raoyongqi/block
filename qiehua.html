@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>太阳月亮切换</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: white;
+      transition: background-color 0.5s ease;
+      text-align: center;
+      padding: 50px;
+    }
+
+    .theme-toggle {
+      font-size: 50px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .dark-mode {
+      background-color: #1e1e1e;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- 图标区域 -->
+  <div id="icon" class="theme-toggle">🌞</div>
+
+  <script>
+    const icon = document.getElementById('icon');
+
+    icon.addEventListener('click', () => {
+      const body = document.body;
+      const isDark = body.classList.toggle('dark-mode');
+
+      // 切换图标
+      icon.textContent = isDark ? '🌜' : '🌞';
+    });
+  </script>
+</body>
+</html>
