@@ -1,49 +1,38 @@
+
 {
     "manifest_version": 2,
-    "name": "DownloadBlockedSite",
+    "name": "Request Domain Tracker",
     "version": "1.0",
-    "description": "DownloadBlockedSite",
-    "icons": {
-      "48": "spider_web.png"
-    },
+    "description": "record requests",
     "permissions": [
-        "tabs",
-        "storage",
-        "<all_urls>",
-        "notifications",
-        "webRequest",
-        "webRequestBlocking",
-        "webNavigation"
-      ],
-      "background": {
-        "scripts": ["background.js"]
-      },
-      "content_scripts": [
-        {
-          "matches": [
-            "<all_urls>",
-            "file:///*",
-            "*://*/*"
-          ],
-          "js": [
-            "content.js"
-          ]
-        }
-      ],
-    "browser_specific_settings": {
-        "gecko": {
-            "id": "addons-my-new-addon@mozilla.com",
-    
-            "strict_min_version": "54.0a1"
-        }
+    "activeTab", "scripting","storage",      "tabs",
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>"
+    ],
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"]
+      }
+    ],
+    "background": {
+      "scripts": ["background.js"]
     },
     "browser_action": {
+      "default_title": "Read requests",
       "default_popup": "popup.html",
       "default_icon": {
         "16": "spider_web.png",
         "48": "spider_web.png",
         "128": "spider_web.png"
       }
-    }
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "addons-my-new-addon@mozilla.com",
+    
+            "strict_min_version": "54.0a1"
+        }}
   }
   

@@ -158,22 +158,87 @@ widget.addEventListener('click', () => {
     halfCircle.style.backgroundColor = '#3384D4';
     bingoIcon.style.display = 'block';
     browser.storage.local.get().then((result) => {
-        const jsonData = JSON.stringify(result, null, 2);
-    
-        const blob = new Blob([jsonData], { type: 'application/json' });
-    
+
+      const hosts = new Set();
+      function extractHost(url) {
+        try {
+          const parsedUrl = new URL(url);
+          return parsedUrl.hostname || url;  // If it's a full URL, extract host using URL object
+        } catch (error) {
+          return url;  // If it's not a valid URL, return the URL as is
+        }
+      }
+      
+      for (const key in data) {
+        // Skip keys that start with "about:"
+        if (key.startsWith("about:")) {
+          continue;
+        }
+      
+        hosts.add(extractHost(key));
+      
+        const urls = data[key];
+        if (Array.isArray(urls)) {
+          urls.forEach(url => {
+            hosts.add(extractHost(url));
+          });
+        }
+      }
+      
+
+
+      const combinedUniqueUrls = Array.from(new Set([...begin_without_star_urls, ...hosts]));
+      
+      
+      const jsContent = `
+      const beginWithStar = ${JSON.stringify(result, null, 4)};
+      const beginWithoutStar = ${JSON.stringify(result, null, 4)};
+      const allowedUrls = beginWithStar.concat(beginWithoutStar);
+      const blockedUrls = ${JSON.stringify(result, null, 4)};
+      
+      const onBeforeRequest = (details) => {
+          const url = new URL(details.url);
+          const host = url.hostname;
+      
+          const isBlocked = blockedUrls.some(pattern => {
+              const regex = new RegExp(pattern.replace(/\\*/g, '.*'));
+              return regex.test(details.url);
+          });
+      
+          if (isBlocked) {
+              console.log(\`Blocked URL: \${details.url}\`);
+              return { cancel: true };
+          }
+      
+          const isAllowed = allowedUrls.some(pattern => {
+              if (pattern.startsWith("*.") && host.endsWith(pattern.slice(2))) {
+                  return true;
+              }
+              return host === pattern || host === 'www.' + pattern;
+          });
+      
+          if (!isAllowed) {
+              console.log(\`Blocked URL: \${details.url}\`);
+              return { cancel: true };
+          }
+      
+          return { cancel: false };
+      };
+      
+      browser.webRequest.onBeforeRequest.addListener(
+          onBeforeRequest,
+          { urls: ["<all_urls>"] },
+          ["blocking"]
+      );
+      `;
+      
+
+        const blob = new Blob([jsContent], { type: "application/javascript" });
         const url = URL.createObjectURL(blob);
-    
-        const now = new Date();
-        const formattedDate = now.toISOString().replace(/[T:.]/g, '-');
-    
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        
-        a.download = `storageData-${formattedDate}.json`;  
-    
+        a.download = `generated-background.js`;
         a.click();
-    
         URL.revokeObjectURL(url);
     });
     sessionStorage.setItem('isClicked', 'true');

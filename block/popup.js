@@ -2,8 +2,6 @@ let blockedDomainsContainer
 let blockedDomainsButton
 let cookiesContainer
 let cookiesButton
-let lsContainer
-let lsButton
 
 let sets = {}
 let cookies = []
@@ -18,8 +16,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     blockedDomainsButton = document.getElementById('blocked-domains-btn')
     cookiesContainer = document.getElementById('cookies')
     cookiesButton = document.getElementById('cookies-btn')
-    lsContainer = document.getElementById('ls')
-    lsButton = document.getElementById('ls-btn')
+
 
     for (let i = 0; i < coll.length; i++) {
         coll[i].addEventListener("click", function() {

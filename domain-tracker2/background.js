@@ -1,18 +1,18 @@
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request === "LIST") {
-        sendResponse(sets)
-    } 
-    else if ("toggleTheme" in request) {
+    if ("toggleTheme" in request) {
         toggleTheme(sendResponse);
     }
     else if ("getTheme" in request) {
         getTheme(sendResponse);
+    }else if (request === "LIST") {
+        sendResponse(sets)
     }
     return true;
   });
   
 const toggleTheme = (sendResponse) => {
-browser.storage.sync.get("isDarkTheme", (result) => {
+
+    browser.storage.sync.get("isDarkTheme", (result) => {
     const darkThemeToggeled = !result.isDarkTheme;
 
     browser.storage.sync.set({ isDarkTheme: darkThemeToggeled }, () => {
@@ -75,7 +75,6 @@ browser.webRequest.onBeforeRequest.addListener((requestDetails) => {
     
     
 }, { urls: ["*://*/*"] });
-
 
 browser.runtime.onUninstall.addListener(() => {
     console.log('扩展已卸载，正在清理数据...');

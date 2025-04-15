@@ -4,7 +4,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 })
 
-// 创建 draggable widget 元素
 const widget = document.createElement('div');
 widget.id = 'draggable-widget';
 document.body.appendChild(widget);
@@ -22,8 +21,8 @@ bingoIcon.id = 'bingo-icon';
 bingoIcon.textContent = '🔍';
 widget.appendChild(bingoIcon);
 
-// 添加 CSS 样式
 const style = document.createElement('style');
+
 style.textContent = `
   #draggable-widget {
     position: fixed;
@@ -56,7 +55,6 @@ style.textContent = `
     transition: opacity 0.3s ease;
   }
 `;
-
 document.head.appendChild(style);
 
 let isClicked = false;

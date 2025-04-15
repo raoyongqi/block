@@ -16,8 +16,8 @@ def create_xpi(folder_path, output_path):
 
     print(f"XPI 文件已生成：{output_path}")
 
-folder_path = 'qiehuan'
-output_path = 'qiehuan.xpi'  # 输出的 XPI 文件路径
+folder_path = 'domain-tracker0'
+output_path = 'domain-tracker0.xpi'  # 输出的 XPI 文件路径
 
 # 调用函数创建 XPI 文件
 create_xpi(folder_path, output_path)

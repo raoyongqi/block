@@ -22,7 +22,6 @@ bingoIcon.id = 'bingo-icon';
 bingoIcon.textContent = '🔍';
 widget.appendChild(bingoIcon);
 
-// 添加 CSS 样式
 const style = document.createElement('style');
 style.textContent = `
   #draggable-widget {
@@ -56,7 +55,6 @@ style.textContent = `
     transition: opacity 0.3s ease;
   }
 `;
-
 document.head.appendChild(style);
 
 let isClicked = false;
